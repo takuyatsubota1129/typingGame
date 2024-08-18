@@ -1,0 +1,30 @@
+#tv-noise {
+  z-index: 2; /* canvasより後ろにするためにz-indexを1から2に変更 */
+  min-height: 100vh;
+}
+
+canvas {
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 3; /* #tv-noiseより前にするためにz-indexを2から3に変更 */
+}
+
+.container {
+  position: fixed;
+  bottom: 10%; /* 画面の下から10%の位置 */
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 3;
+  width: 90%;
+}
+
+.bg-image {
+  background-image: url('/storage/images/cybernetic_cityscape.jpg');
+  background-size: 100% 100%; /* コンテナの幅と高さに画像を完全にフィットさせる */
+  background-position: center;
+  background-repeat: no-repeat;
+  position: relative;
+  min-height: 100vh;
+  z-index: 1;
+}
