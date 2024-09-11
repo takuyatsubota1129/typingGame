@@ -12,7 +12,7 @@ use App\Http\Controllers\Admin\PrizeController;
 use App\Http\Controllers\MeasurementController;
 
 use Illuminate\Support\Facades\Route;
-
+use Illuminate\Support\Facades\Auth;
 // 管理者用ルート
 Route::prefix('admin')->name('admin.')->group(function() {
     Route::get('login', [AuthController::class, 'showLoginForm'])->name('login');
@@ -31,41 +31,65 @@ Route::prefix('admin')->name('admin.')->group(function() {
     });
 });
 
+// 既存のユーザー認証ルート
 Route::get('/register', [UserAuthController::class, 'showRegistrationForm'])->name('user.register');
 Route::post('/register', [UserAuthController::class, 'register']);
 
-Route::get('/play', [WordsController::class, 'index'])->middleware(['auth', 'verified'])->name('play');
-
-//トップページ
-Route::get('/top', [TopController::class, 'top'])->middleware(['auth', 'verified'])->name('top');
-
-//ステージ選択
-Route::get('/stage', [StageController::class, 'select'])->middleware(['auth', 'verified'])->name('stage');
-
-//ガチャ
-Route::middleware(['auth', 'verified', 'redirect.if.not.instantwin.form'])->group(function () {
-    Route::get('/instantwin/form', [InstantwinController::class, 'showForm'])->name('instantwin.form');
-    Route::post('/instantwin/select', [InstantwinController::class, 'select'])->name('instantwin.select');
-    Route::post('/instantwin/selectTen', [InstantwinController::class, 'selectTen'])->name('instantwin.selectTen');
-    Route::get('/instantwin/result', [InstantwinController::class, 'showResult'])->name('instantwin.result');
-});
-//装備画面
-Route::get('/preparation', [PreparationController::class, 'preparation'])->middleware(['auth', 'verified'])->name('preparation');
-
-Route::middleware('auth')->group(function () {
-    Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
-    Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
-    Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+// API用のルート（必要に応じて）
+Route::middleware('auth:sanctum')->group(function () {
+    Route::get('/api/user', function () {
+        return Auth::user();
+    });
+    // 他のAPI用ルートをここに追加
 });
 
-Route::get('/', [UserAuthController::class, 'showLoginForm'])->name('user.login');
-Route::post('/', [UserAuthController::class, 'login']);
+// ログインページ用のルート（SPAの外）
+Route::get('/', [UserAuthController::class, 'showLoginForm']);
+Route::post('/', [UserAuthController::class, 'login'])->name('user.login');
 
-// スコア情報を保存するためのルート
-Route::post('/measurements', [MeasurementController::class, 'store']);
+Route::middleware(['auth'])->group(function () {
+    Route::get('/{any}', function () {
+        return view('app');
+    })->where('any', '.*');
+});
 
-Route::get('/dashboard', function () {
-    return view('dashboard');
-})->middleware(['auth'])->name('dashboard');
+Route::post('/logout', [UserAuthController::class, 'logout'])->name('logout');
+
+
+// Route::get('/register', [UserAuthController::class, 'showRegistrationForm'])->name('user.register');
+// Route::post('/register', [UserAuthController::class, 'register']);
+
+// Route::get('/play', [WordsController::class, 'index'])->middleware(['auth', 'verified'])->name('play');
+
+// //トップページ
+// // Route::get('/top', [TopController::class, 'top'])->middleware(['auth', 'verified'])->name('top');
+// Route::get('/top', function () {
+//     return view('dashboard');
+// })->middleware(['auth'])->name('dashboard');
+
+// //ステージ選択
+// Route::get('/stage', [StageController::class, 'select'])->middleware(['auth', 'verified'])->name('stage');
+
+// //ガチャ
+// Route::middleware(['auth', 'verified', 'redirect.if.not.instantwin.form'])->group(function () {
+//     Route::get('/instantwin/form', [InstantwinController::class, 'showForm'])->name('instantwin.form');
+//     Route::post('/instantwin/select', [InstantwinController::class, 'select'])->name('instantwin.select');
+//     Route::post('/instantwin/selectTen', [InstantwinController::class, 'selectTen'])->name('instantwin.selectTen');
+//     Route::get('/instantwin/result', [InstantwinController::class, 'showResult'])->name('instantwin.result');
+// });
+// //装備画面
+// Route::get('/preparation', [PreparationController::class, 'preparation'])->middleware(['auth', 'verified'])->name('preparation');
+
+// Route::middleware('auth')->group(function () {
+//     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
+//     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
+//     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+// });
+
+// Route::get('/', [UserAuthController::class, 'showLoginForm'])->name('user.login');
+// Route::post('/', [UserAuthController::class, 'login']);
+
+// // スコア情報を保存するためのルート
+// Route::post('/measurements', [MeasurementController::class, 'store']);
 
 require __DIR__.'/auth.php';

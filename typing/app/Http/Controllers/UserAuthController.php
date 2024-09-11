@@ -7,11 +7,6 @@ use Illuminate\Support\Facades\Auth;
 
 class UserAuthController extends Controller
 {
-    // ログインフォームを表示
-    public function showLoginForm()
-    {
-        return view('user.login');
-    }
 
     // ログイン処理
     public function login(Request $request)
@@ -56,5 +51,18 @@ class UserAuthController extends Controller
 
         return redirect()->intended('dashboard');
     }
-
+    public function showLoginForm()
+    {
+        if (Auth::check()) {
+            return redirect('/top');
+        }
+        return view('user.login');
+    }
+    public function logout(Request $request)
+    {
+        Auth::logout();
+        $request->session()->invalidate();
+        $request->session()->regenerateToken();
+        return response()->json(['message' => 'ログアウトしました'], 200);
+    }
 }
