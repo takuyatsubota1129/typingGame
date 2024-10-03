@@ -1,7 +1,10 @@
 <template>
   <div class="container mt-5">
     <h1 class="mb-4">Instant Win Result</h1>
-    <div v-if="results.length > 0" class="cards">
+    <div v-if="isLoading" class="loader-overlay">
+      <div class="loader"></div>
+    </div>
+    <div v-else-if="results.length > 0" class="cards">
       <div 
         v-for="(result, index) in results" 
         :key="index" 
@@ -95,11 +98,13 @@ export default {
     const handleError = (error) => {
       console.error('Error:', error);
       alert('エラーが発生しました。もう一度お試しください。');
+      document.body.classList.remove('loader-active'); // エラー時にローダーを解除
     };
 
     const tryLuck = async () => {
       if (!checkAuth()) return;
-      isLoading.value = true;
+      isLoading.value = true; // ローディング開始
+      document.body.classList.add('loader-active'); // ローダーを全画面に適用
       isAnimated.value = false;
       try {
         const response = await axios.post('/api/instantwin/select');
@@ -109,13 +114,15 @@ export default {
       } catch (error) {
         handleError(error);
       } finally {
-        isLoading.value = false;
+        isLoading.value = false; // ローディング終了
+        document.body.classList.remove('loader-active'); // ローダーを解除
       }
     };
 
     const tryTenTimes = async () => {
       if (!checkAuth()) return;
-      isLoading.value = true;
+      isLoading.value = true; // ローディング開始
+      document.body.classList.add('loader-active'); // ローダーを全画面に適用
       isAnimated.value = false;
       try {
         const response = await axios.post('/api/instantwin/selectTen');
@@ -125,7 +132,8 @@ export default {
       } catch (error) {
         handleError(error);
       } finally {
-        isLoading.value = false;
+        isLoading.value = false; // ローディング終了
+        document.body.classList.remove('loader-active'); // ローダーを解除
       }
     };
 
@@ -157,7 +165,7 @@ export default {
 }
 </script>
 
-<style scoped>
+<style>
 .cards {
   display: flex;
   flex-wrap: wrap;
@@ -352,5 +360,22 @@ export default {
   max-width: 90%;
   max-height: 90%;
   border: solid 5px #fff; /* 白い枠線 */
+}
+
+.loader-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(0, 0, 0, 1); /* 半透明の背景 */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999; /* 他の要素の上に表示 */
+}
+
+.loader {
+  z-index: 10000; /* ローダーをさらに前面に表示 */
 }
 </style>
