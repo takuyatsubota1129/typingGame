@@ -3,6 +3,8 @@
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\InstantwinController;
+use App\Http\Controllers\GameController;
+use App\Http\Controllers\WordsController;
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -22,3 +24,8 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/instantwin/selectTen', [InstantwinController::class, 'selectTen']);
 });
 // Route::middleware('auth:sanctum')->get('/dashboard', [DashboardController::class, 'index']);
+
+Route::post('/game/join/{stageId}', [GameController::class, 'joinStage']);
+Route::post('/game/leave/{stageId}', [GameController::class, 'leaveStage']);
+
+Route::get('/words', [WordsController::class, 'getWords']);

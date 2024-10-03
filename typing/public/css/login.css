@@ -20,7 +20,7 @@ canvas {
 }
 
 .bg-image {
-  background-image: url('/storage/images/cybernetic_cityscape.jpg');
+  background-image: url('/storage/images/background01.jpg');
   background-size: 100% 100%; /* コンテナの幅と高さに画像を完全にフィットさせる */
   background-position: center;
   background-repeat: no-repeat;

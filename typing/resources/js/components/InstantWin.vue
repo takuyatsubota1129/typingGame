@@ -1,11 +1,14 @@
 <template>
   <div class="container mt-5">
     <h1 class="mb-4">Instant Win Result</h1>
-    <div v-if="results.length > 0" class="cards">
-      <div 
-        v-for="(result, index) in results" 
-        :key="index" 
-        class="card-wrapper anim-box slidein" 
+    <div v-if="isLoading" class="loader-overlay">
+      <div class="loader"></div>
+    </div>
+    <div v-else-if="results.length > 0" class="cards">
+      <div
+        v-for="(result, index) in results"
+        :key="index"
+        class="card-wrapper anim-box slidein"
         :class="[getCardClass(result.prize.probability), { 'is-animated': isAnimated }]"
         :style="{ animationDelay: `${index * 0.1}s` }"
         @mousemove="updateCard($event, index)"
@@ -21,8 +24,8 @@
         </div>
       </div>
     </div>
-    <button @click="tryLuck" class="btn btn-primary mr-2" :disabled="isLoading">Try Again</button>
-    <button @click="tryTenTimes" class="btn btn-secondary" :disabled="isLoading">Try 10 Times</button>
+    <button @click="tryLuck" class="btn btn-primary mr-2" :disabled="isLoading">ガチャを引く</button>
+    <button @click="tryTenTimes" class="btn btn-secondary" :disabled="isLoading">10連実行</button>
     <div v-if="showBackground" class="background-image" :style="{ backgroundImage: `url(${cardBackgroundImage})` }"></div>
     <!-- モーダル -->
     <div v-if="showModal" class="modal" @click="closeModal">
@@ -43,7 +46,7 @@ export default {
     const isAnimated = ref(false);
     const cardStyles = reactive([]);
     const cardBackgroundImage = `${import.meta.env.VITE_APP_URL}/storage/card/background01.png`;
-    
+
     // モーダル表示の状態を管理
     const showModal = ref(false);
     const currentImage = ref('');
@@ -95,11 +98,13 @@ export default {
     const handleError = (error) => {
       console.error('Error:', error);
       alert('エラーが発生しました。もう一度お試しください。');
+      document.body.classList.remove('loader-active'); // エラー時にローダーを解除
     };
 
     const tryLuck = async () => {
       if (!checkAuth()) return;
-      isLoading.value = true;
+      isLoading.value = true; // ローディング開始
+      document.body.classList.add('loader-active'); // ローダーを全画面に適用
       isAnimated.value = false;
       try {
         const response = await axios.post('/api/instantwin/select');
@@ -109,13 +114,15 @@ export default {
       } catch (error) {
         handleError(error);
       } finally {
-        isLoading.value = false;
+        isLoading.value = false; // ローディング終了
+        document.body.classList.remove('loader-active'); // ローダーを解除
       }
     };
 
     const tryTenTimes = async () => {
       if (!checkAuth()) return;
-      isLoading.value = true;
+      isLoading.value = true; // ローディング開始
+      document.body.classList.add('loader-active'); // ローダーを全画面に適用
       isAnimated.value = false;
       try {
         const response = await axios.post('/api/instantwin/selectTen');
@@ -125,7 +132,8 @@ export default {
       } catch (error) {
         handleError(error);
       } finally {
-        isLoading.value = false;
+        isLoading.value = false; // ローディング終了
+        document.body.classList.remove('loader-active'); // ローダーを解除
       }
     };
 
@@ -157,7 +165,7 @@ export default {
 }
 </script>
 
-<style scoped>
+<style>
 .cards {
   display: flex;
   flex-wrap: wrap;
@@ -178,9 +186,9 @@ export default {
   height: 100%;
   position: absolute;
   border-radius: 5% / 3.5%;
-  box-shadow: 
-    -5px -5px 5px -5px var(--color1), 
-    5px 5px 5px -5px var(--color2), 
+  box-shadow:
+    -5px -5px 5px -5px var(--color1),
+    5px 5px 5px -5px var(--color2),
     0 0 5px 0px rgba(255,255,255,0),
     0 55px 35px -20px rgba(0, 0, 0, 0.5);
   transition: transform 0.5s ease, box-shadow 0.2s ease;
@@ -195,11 +203,11 @@ export default {
 }
 
 .card:hover {
-  box-shadow: 
-    -20px -20px 30px -25px var(--color1), 
-    20px 20px 30px -25px var(--color2), 
-    -7px -7px 10px -5px var(--color1), 
-    7px 7px 10px -5px var(--color2), 
+  box-shadow:
+    -20px -20px 30px -25px var(--color1),
+    20px 20px 30px -25px var(--color2),
+    -7px -7px 10px -5px var(--color1),
+    7px 7px 10px -5px var(--color2),
     0 0 13px 4px rgba(255,255,255,0.3),
     0 55px 35px -20px rgba(0, 0, 0, 0.5);
 }
@@ -352,5 +360,22 @@ export default {
   max-width: 90%;
   max-height: 90%;
   border: solid 5px #fff; /* 白い枠線 */
+}
+
+.loader-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(0, 0, 0, 1); /* 半透明の背景 */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999; /* 他の要素の上に表示 */
+}
+
+.loader {
+  z-index: 10000; /* ローダーをさらに前面に表示 */
 }
 </style>

@@ -7,13 +7,16 @@ use Illuminate\Support\Facades\File;
 
 class WordsController extends Controller
 {
-    public function index()
+    public function getWords()
     {
-        // JSONファイルから単語リストを読み込む
-        $wordsJson = File::get(config_path('words.json'));
-        $words = json_decode($wordsJson);
+        $wordsJson = File::get(resource_path('views/game/words.json'));
+        $words = json_decode($wordsJson, true);
 
-        // ビューに単語リストを渡す
-        return view('game.play')->with('words', $words);
+        if (json_last_error() !== JSON_ERROR_NONE) {
+            \Log::error('JSON decode error: ' . json_last_error_msg());
+            return response()->json(['error' => 'Failed to decode words'], 500);
+        }
+
+        return response()->json($words);
     }
 }
