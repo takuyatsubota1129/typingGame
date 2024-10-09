@@ -18,7 +18,7 @@
                     <div class="card mt-5">
                         <h5 class="card-header">User Login</h5>
                         <div class="card-body">
-                            <form method="POST" action="{{ route('login') }}">
+                            <form id="loginForm" method="POST" action="{{ route('user.login') }}">
                                 @csrf
                                 <div class="mb-3">
                                     <label for="email" class="form-label">Email:</label>
@@ -41,91 +41,36 @@
     </div>
     <!-- Bootstrap JSのリンク -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    {{-- <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script> --}}
-        <script>
+    <script>
+        document.getElementById('loginForm').addEventListener('submit', async function(event) {
+            event.preventDefault(); // フォームのデフォルト送信を防ぐ
 
-            // ------------------------------------------------------------
-            const canvas = document.querySelector("canvas");
-            const ctx = canvas.getContext("2d");
-            const colors = [
-            "#b4b2b5",
-            "#dfd73f",
-            "#6ed2dc",
-            "#66cf5d",
-            "#c542cb",
-            "#d0535e",
-            "#3733c9"
-            ];
-        
-            canvas.width = innerWidth;
-            canvas.height = innerHeight;
-        
-            function texts(color) {
-            ctx.font = "20vh Bungee Outline";
-            ctx.shadowBlur = 30;
-            ctx.shadowColor = color;
-            ctx.fillStyle = color;
-            ctx.setTransform(1, -0.15, 0, 1, 0, -10);
-            ctx.fillText("Typing", innerWidth / 2, innerHeight / 2 - 5);
-        
-            ctx.fillStyle = "white";
-            ctx.shadowBlur = 30;
-            ctx.shadowColor = color;
-            ctx.fillText("Typing", innerWidth / 2, innerHeight / 2);
-        
-            ctx.font = "18vh Bungee Inline";
-            ctx.shadowBlur = 30;
-            ctx.shadowColor = color;
-            ctx.fillStyle = "#fff";
-            ctx.setTransform(1, -0.15, 0, 1, 0, -10);
-            ctx.fillText(
-                "Game",
-                innerWidth / 2,
-                innerHeight / 2 + innerHeight / 10
-            );
-        
-            ctx.textAlign = "center";
-            ctx.textBaseline = "middle";
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+
+            try {
+                const response = await fetch('{{ route('user.login') }}', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                    },
+                    body: JSON.stringify({ email, password })
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    localStorage.setItem('authToken', data.token); // トークンを保存
+                    window.location.href = '/top'; // ログイン成功後にリダイレクト
+                } else {
+                    alert(data.error || 'ログインに失敗しました。');
+                }
+            } catch (error) {
+                console.error('ログインエラー:', error);
+                alert('ログイン中にエラーが発生しました。');
             }
-        
-            function glitch() {
-            // ctx.clearRect(0, 0, canvas.width, canvas.height); // キャンバスを透明にクリア
-            texts(colors[Math.floor(Math.random() * colors.length)]);
-            ctx.shadowBlur = 0;
-            ctx.shadowColor = "none";
-            ctx.setTransform(1, 0, 0, 1, 0, 0);
-        
-            // TVノイズのような効果を追加するためのランダムな点と四角形を描画
-            for (let i = 0; i < 1000; i++) {
-                ctx.fillStyle = `rgba(255, 255, 255, ${Math.random() * 0.01})`;
-                ctx.fillRect(
-                Math.floor(Math.random() * innerWidth),
-                Math.floor(Math.random() * innerHeight),
-                Math.floor(Math.random() * 30) + 1,
-                Math.floor(Math.random() * 30) + 1
-                );
-        
-                ctx.fillStyle = `rgba(0,0,0,${Math.random() * 0.1})`;
-                ctx.fillRect(
-                Math.floor(Math.random() * innerWidth),
-                Math.floor(Math.random() * innerHeight),
-                Math.floor(Math.random() * 25) + 1,
-                Math.floor(Math.random() * 25) + 1
-                );
-            }
-            }
-        
-            glitch();
-        
-            let resizeTimer;
-            window.addEventListener('resize', () => {
-                clearTimeout(resizeTimer);
-                resizeTimer = setTimeout(() => {
-                    canvas.width = innerWidth;
-                    canvas.height = innerHeight;
-                    glitch(); // サイズ変更が完了してからグリッチエフェクトを再描画
-                }, 250); // 250ミリ秒のデバウンスタイマー
-            });
-        </script>
+        });
+    </script>
 </body>
 </html>

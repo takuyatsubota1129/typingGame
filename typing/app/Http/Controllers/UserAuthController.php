@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use App\Models\User;
 
 class UserAuthController extends Controller
 {
@@ -18,13 +19,13 @@ class UserAuthController extends Controller
 
         if (Auth::attempt($credentials)) {
             $request->session()->regenerate();
+            $user = Auth::user();
+            $token = $user->createToken('authToken')->plainTextToken; // トークンを発行
 
-            return redirect()->intended('/top');
+            return response()->json(['token' => $token], 200); // トークンを返す
         }
 
-        return back()->withErrors([
-            'email' => 'The provided credentials do not match our records.',
-        ])->onlyInput('email');
+        return response()->json(['error' => 'The provided credentials do not match our records.'], 401);
     }
 
     // 新規登録フォームを表示
@@ -60,9 +61,11 @@ class UserAuthController extends Controller
     }
     public function logout(Request $request)
     {
+        $request->user()->currentAccessToken()->delete(); // 現在のトークンを削除
         Auth::logout();
         $request->session()->invalidate();
         $request->session()->regenerateToken();
+
         return response()->json(['message' => 'ログアウトしました'], 200);
     }
 }

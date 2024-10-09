@@ -39,7 +39,7 @@ class Kernel extends HttpKernel
         ],
 
         'api' => [
-            \Illuminate\Routing\Middleware\ThrottleRequests::class.':api',
+            'throttle:60,1', // 1分間に60リクエストを許可
             \Illuminate\Routing\Middleware\SubstituteBindings::class,
         ],
     ];

@@ -90,11 +90,6 @@ export default {
       showModal.value = false; // モーダルを非表示
     };
 
-    const checkAuth = () => {
-      // 認証チェックのロジックを実装
-      return true; // 仮の実装
-    };
-
     const handleError = (error) => {
       console.error('Error:', error);
       alert('エラーが発生しました。もう一度お試しください。');
@@ -102,38 +97,57 @@ export default {
     };
 
     const tryLuck = async () => {
-      if (!checkAuth()) return;
+      if (isLoading.value) return;
       isLoading.value = true; // ローディング開始
       document.body.classList.add('loader-active'); // ローダーを全画面に適用
-      isAnimated.value = false;
+      const token = localStorage.getItem('authToken');
+      if (!token) {
+        console.error('トークンが見つかりません');
+        isLoading.value = false;
+        return;
+      }
+
       try {
-        const response = await axios.post('/api/instantwin/select');
+        const response = await axios.post('/api/instantwin/select', {}, {
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        });
         results.value = response.data.results;
         initializeCardStyles();
         isAnimated.value = true;
       } catch (error) {
-        handleError(error);
+        console.error('APIリクエストエラー:', error);
       } finally {
-        isLoading.value = false; // ローディング終了
-        document.body.classList.remove('loader-active'); // ローダーを解除
+        isLoading.value = false;
+        document.body.classList.remove('loader-active');
       }
     };
 
     const tryTenTimes = async () => {
-      if (!checkAuth()) return;
+      if (isLoading.value) return;
       isLoading.value = true; // ローディング開始
       document.body.classList.add('loader-active'); // ローダーを全画面に適用
-      isAnimated.value = false;
+      const token = localStorage.getItem('authToken');
+      if (!token) {
+        console.error('トークンが見つかりません');
+        isLoading.value = false;
+        return;
+      }
       try {
-        const response = await axios.post('/api/instantwin/selectTen');
+        const response = await axios.post('/api/instantwin/selectTen', {}, {
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        });
         results.value = response.data.results;
         initializeCardStyles();
         isAnimated.value = true;
       } catch (error) {
-        handleError(error);
+        console.error('APIリクエストエラー:', error);
       } finally {
-        isLoading.value = false; // ローディング終了
-        document.body.classList.remove('loader-active'); // ローダーを解除
+        isLoading.value = false;
+        document.body.classList.remove('loader-active');
       }
     };
 
