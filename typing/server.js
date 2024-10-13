@@ -14,8 +14,8 @@ const server = createServer({
 
 const io = new Server(server, {
   cors: {
-    // origin: "http://localhost:8080", // Viteサーバーのアドレス
-    origin: "http://192.168.0.184",
+    origin: "http://localhost:8080", // Viteサーバーのアドレス
+    // origin: "http://192.168.0.184",
     methods: ["GET", "POST"]
   }
 });
@@ -51,7 +51,6 @@ io.on('connection', (socket) => {
   });
 });
 
-const port = process.env.SOCKET_PORT || 3000;
-server.listen(port, '0.0.0.0', () => {
-  console.log(`Socket.IO server running on port ${port}`);
+server.listen(3000, () => {
+  console.log('WebSocket server is running on port 3000');
 });

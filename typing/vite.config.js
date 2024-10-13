@@ -26,8 +26,8 @@ export default defineConfig({
             cert: fs.readFileSync('/etc/pki/tls/certs/server.crt'),
         },
         hmr: {
-            // host: 'localhost'
-            host: '192.168.0.184'
+            host: 'localhost'
+            // host: '172.17.0.2'
         },
     },
     define: {

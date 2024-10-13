@@ -110,7 +110,7 @@ export default {
       }
 
       // socket = io('http://localhost:3000', {
-      socket = io('https://192.168.0.184:3000', {
+      socket = io('wss://localhost:3000', {
         withCredentials: true,
         transports: ['websocket']
       })
